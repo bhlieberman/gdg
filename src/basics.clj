@@ -51,8 +51,8 @@
 
 ;; but here's a cool feature of maps and vectors
 ;; they are functions!
-([1 2 3] 1)
-({:my-name "Ben"} :my-name)
+([1 2 3] 1) ;; vectors are fns of their indexes
+({:my-name "Ben"} :my-name) ;; maps are functions of their keys
 
 ;; maps can also have keys that are not "hashable" in other languages
 (get {[:a :key] :a-value} [:a :key])
