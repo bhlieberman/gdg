@@ -1,0 +1,2 @@
+{:paths ["src"]
+ :deps  {org.jsoup/jsoup {:mvn/version "1.16.1"}}}
