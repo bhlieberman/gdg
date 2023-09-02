@@ -82,16 +82,24 @@
 (comment (type pipeline))
 (into [] pipeline nums) ;; with into our pipeline runs left to right, as with the threading macro
 
+;; partial application
+(doc partial)
+
+(defn fizzbuzz [n]
+  (let [mod-n (partial mod n)]
+    (cond
+      (and (zero? (mod-n 5))
+           (zero? (mod-n 3))) "fizzbuzz|"
+      (zero? (mod-n 3)) "fizz|"
+      (zero? (mod-n 5)) "buzz|"
+      :else (str n "|"))))
+
 ;; TABLES
 (def foobar (into [] (comp
-                      (take 45)
-                      (map (fn [n] (if (odd? n) 
-                                     "foo|" 
-                                     (if (= n 44) 
-                                       "bar" 
-                                       "bar|"))))
+                      (take 100)
+                      (map fizzbuzz)
                       ; (interpose "|")
-                      (partition-all 5)) (range)))
+                      (partition-all 5)) (range 1 Long/MAX_VALUE)))
 
 (pprint foobar) ;; pretty printed "table"
 
@@ -124,13 +132,20 @@
 
 ;; let's meet `mapcat`
 ;; like flatMap/flat_map in other languages
+;; a common example first
+(mapcat (fn [n] [n n]) (range 10))
+
 (->> foobar ;; our original table 
-     (apply mapcat str) ;; "flattened"
+     (mapcat (fn [coll] (conj coll "\n"))) ; adding some newlines for readability
      (apply str) ;; stringified 
      (spit "foobar.csv")
      )
 
-;; TODO: demonstrate reduce
+;; the classic `reduce` example (sums)
+(reduce + (range 10)) ; without accumulator - uses the first value in the input collection
+(reduce + 0 (range 10)) ; with accumulator - same result
+;; TODO: demonstrate reduce with non-trivial example
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;BONUS;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                     ;;
