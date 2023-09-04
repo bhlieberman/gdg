@@ -145,7 +145,17 @@
 (reduce + (range 10)) ; without accumulator - uses the first value in the input collection
 (reduce + 0 (range 10)) ; with accumulator - same result
 ;; TODO: demonstrate reduce with non-trivial example
+;; implementing map and filter in terms of reduce
+(defn my-map [f coll]
+  (reduce (fn [acc item] (conj acc (f item))) [] coll))
 
+(defn my-filter [pred coll]
+  (reduce (fn [acc item] (if (pred item)
+                           (conj acc item)
+                           acc)) [] coll))
+
+(my-map inc (range 10))
+(my-filter even? (range 10))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;BONUS;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                                     ;;
