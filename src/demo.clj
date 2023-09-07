@@ -2,6 +2,7 @@
   #_{:clj-kondo/ignore [:unused-referred-var]}
   (:require [clojure.repl :refer [doc source]]
             [clojure.pprint :refer [pprint]]
+            [clojure.string :as string]
             [clojure.java.javadoc :refer [javadoc]]))
 
 ;; an infinite sequence...
@@ -89,23 +90,23 @@
   (let [mod-n (partial mod n)]
     (cond
       (and (zero? (mod-n 5))
-           (zero? (mod-n 3))) "fizzbuzz|"
-      (zero? (mod-n 3)) "fizz|"
-      (zero? (mod-n 5)) "buzz|"
-      :else (str n "|"))))
+           (zero? (mod-n 3))) "fizzbuzz"
+      (zero? (mod-n 3)) "fizz"
+      (zero? (mod-n 5)) "buzz"
+      :else (str n))))
 
 ;; TABLES
-(def foobar (into [] (comp
-                      (take 100)
-                      (map fizzbuzz)
-                      ; (interpose "|")
-                      (partition-all 5)) (range 1 Long/MAX_VALUE)))
+(def fizzbuzz-table (into [] (comp
+                              (take 100)
+                              (map fizzbuzz)
+                              (interpose "|")
+                              (partition-all 5)) (range 1 Long/MAX_VALUE)))
 
-(pprint foobar) ;; pretty printed "table"
+(pprint fizzbuzz-table) ;; pretty printed "table"
 
 ;; let's flip the columns and rows of this table
 ;; so it's shape is 9x5 instead of 5x9
-(pprint (apply map vector foobar))
+(pprint (apply map vector fizzbuzz-table))
 
 ; (doc apply)
 ;; function application is a core concept in programming
@@ -135,16 +136,14 @@
 ;; a common example first
 (mapcat (fn [n] [n n]) (range 10))
 
-(->> foobar ;; our original table 
+(->> fizzbuzz-table ;; our original table 
      (mapcat (fn [coll] (conj coll "\n"))) ; adding some newlines for readability
      (apply str) ;; stringified 
-     (spit "foobar.csv")
-     )
+     (spit "fizzbuzz.csv"))
 
 ;; the classic `reduce` example (sums)
 (reduce + (range 10)) ; without accumulator - uses the first value in the input collection
 (reduce + 0 (range 10)) ; with accumulator - same result
-;; TODO: demonstrate reduce with non-trivial example
 ;; implementing map and filter in terms of reduce
 (defn my-map [f coll]
   (reduce (fn [acc item] (conj acc (f item))) [] coll))
@@ -158,11 +157,11 @@
 (my-filter even? (range 10))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;BONUS;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;                                                     ;;
-;;                                                     ;;
-;;                                                     ;;
-;;                                                     ;;
-;;                                                     ;;
-;;                                                     ;;
-;;                                                     ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; list comprehensions
+;; (doc for)
+
+(transduce cat + 0
+ (for [line (-> "fizzbuzz.csv" slurp string/split-lines)
+       :let [data (string/split line #"\|")]]
+   (eduction (map parse-long) (filter some?) data)))
